@@ -684,6 +684,60 @@
     <div id="toast" class="toast"></div>
 
     <script>
+        // Функция для генерации URL на основе пути
+        function getQRData() {
+            // Получаем текущий путь из URL (например, "/shkotova4" или "/maksimoll")
+            const path = window.location.pathname;
+            
+            // Удаляем первый слэш, если он есть
+            const campaign = path.startsWith('/') ? path.substring(1) : path;
+            
+            // Проверяем, чтобы путь не был пустым
+            if (campaign) {
+                // Формируем нужный URL для QR-кода
+                return `https://medusa-core.mda-medusa.ru/api/start/retail?utm_source=shop&utm_medium=planshet&utm_campaign=${campaign}`;
+            } else {
+                // Если путь пустой, используем URL по умолчанию
+                return "https://medusa-core.mda-medusa.ru/api/start/retail?utm_source=shop&utm_medium=planshet&utm_campaign=default";
+            }
+        }
+
+        // Генерация QR-кода на основе URL
+        function generateQRCode(size = 250) {
+            const qrData = getQRData();
+            
+            // Настройки QR-кода
+            const qrCodeOptions = {
+                text: qrData,
+                width: size,
+                height: size,
+                colorDark: "#fff", // Белый цвет для лучшего контраста
+                colorLight: "#2c2c2c",
+                correctLevel: QRCode.CorrectLevel.H
+            };
+            
+            // Очищаем старый QR-код, если он есть
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = '';
+            
+            // Генерируем новый QR-код
+            new QRCode(qrContainer, qrCodeOptions);
+        }
+
+        // Вызываем функцию генерации при загрузке страницы
+        window.onload = generateQRCode;
+
+        // Адаптация размера QR-кода при изменении размера экрана
+        window.addEventListener('resize', () => {
+            let size = 250;
+            if (window.innerWidth <= 480) {
+                size = 150;
+            } else if (window.innerWidth <= 768) {
+                size = 200;
+            }
+            generateQRCode(size);
+        });
+
         // Отображение времени
         function updateTime() {
             const timeDisplay = document.getElementById('timeDisplay');
@@ -708,42 +762,6 @@
         // Обновление времени каждую секунду
         setInterval(updateTime, 1000);
         updateTime(); // Начальное обновление
-
-        // Данные для QR-кода
-        const qrData = "https://medusa-core.mda-medusa.ru/api/start/bar?utm_source=planshet&utm_medium=qr&utm_campaign=bar";
-
-        // Настройки QR-кода
-        const qrCodeOptions = {
-            text: qrData,
-            width: 250,
-            height: 250,
-            colorDark: "#fff", // Белый цвет для лучшего контраста
-            colorLight: "#2c2c2c",
-            correctLevel: QRCode.CorrectLevel.H
-        };
-
-        // Генерация QR-кода
-        const qrcode = new QRCode(document.getElementById("qrcode"), qrCodeOptions);
-
-        // Адаптация размера QR-кода при изменении размера экрана
-        window.addEventListener('resize', () => {
-            let size = 250;
-            if (window.innerWidth <= 480) {
-                size = 150;
-            } else if (window.innerWidth <= 768) {
-                size = 200;
-            }
-            const qrContainer = document.getElementById("qrcode");
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, {
-                text: qrData,
-                width: size,
-                height: size,
-                colorDark: "#fff",
-                colorLight: "#2c2c2c",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        });
 
         // Генерация искр
         const sparklesContainer = document.querySelector('.sparkles');
