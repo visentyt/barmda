@@ -684,22 +684,31 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Функция для генерации URL на основе пути
-        function getQRData() {
-            // Получаем текущий путь из URL (например, "/shkotova4" или "/maksimoll")
-            const path = window.location.pathname;
-            
-            // Удаляем первый слэш, если он есть
-            const campaign = path.startsWith('/') ? path.substring(1) : path;
-            
-            // Проверяем, чтобы путь не был пустым
-            if (campaign) {
-                // Формируем нужный URL для QR-кода
-                return `https://medusa-core.mda-medusa.ru/api/start/retail?utm_source=shop&utm_medium=planshet&utm_campaign=${campaign}`;
-            } else {
-                // Если путь пустой, используем URL по умолчанию
-                return "https://medusa-core.mda-medusa.ru/api/start/retail?utm_source=shop&utm_medium=planshet&utm_campaign=default";
+        // Функция для получения параметров из строки запроса
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const pairs = queryString.split('&');
+            for (const pair of pairs) {
+                if (pair) {
+                    const [key, value] = pair.split('=');
+                    if (key) {
+                        params[decodeURIComponent(key)] = decodeURIComponent(value);
+                    } else {
+                        // Если ключ отсутствует, используем всю строку как значение кампании
+                        params['campaign'] = decodeURIComponent(pair);
+                    }
+                }
             }
+            return params;
+        }
+
+        // Функция для генерации URL на основе параметров
+        function getQRData() {
+            const params = getQueryParams();
+            const campaign = params['campaign'] || 'default';
+            // Формируем нужный URL для QR-кода
+            return `https://medusa-core.mda-medusa.ru/api/start/retail?utm_source=shop&utm_medium=planshet&utm_campaign=${campaign}`;
         }
 
         // Генерация QR-кода на основе URL
@@ -848,10 +857,10 @@
 
             // Формирование сообщения
             const message = 
-                `Новый отзыв:\n` +
-                `*Оценка обслуживания:* ${service}/5\n` +
-                `*Оценка обстановки:* ${ambience}/5\n` +
-                `*Предложения по улучшению:* ${improvements}`;
+`Новый отзыв:
+*Оценка обслуживания:* ${service}/5
+*Оценка обстановки:* ${ambience}/5
+*Предложения по улучшению:* ${improvements}`;
 
             // Отправка сообщения в Telegram
             const botToken = "7759090900:AAHV1zW1iAzpJQ6zlAnodE7Zcu1XhECsttI";
